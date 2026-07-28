@@ -1,0 +1,53 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ===== 临时文件 =====
+*.tmp
+*.log
+*.bak
+*.swp
+*~
+
+# ===== 系统文件 =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== 编辑器 =====
+.vscode/
+.idea/
+*.code-workspace
+
+# ===== 大文件 / PDF（不进仓库）=====
+*.pdf
+解决的问题/
+
+# ===== 旧简历文件 =====
+resume.html
+image.png
+
+# ===== 旧版本计划 =====
+计划.md
+计划_v2.md
+计划_v3.md
+
+# ===== 其他临时文件夹 =====
+.claude/
+作品图/
+
+# ===== Vercel 本地 ======
+.vercel/
+
+# ===== 截图原始素材备份 =====
+screenshots_raw/
+
+# ===== 转换脚本 =====
+pdf_to_images.py
