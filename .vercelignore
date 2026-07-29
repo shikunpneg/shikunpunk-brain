@@ -1,0 +1,31 @@
+# 排除论文原始文件
+解决的问题/
+
+# 排除其他非必要目录
+作品图/
+.claude/
+.git/
+.vercel/
+
+# 排除大文件
+*.pdf
+*.zip
+
+# 排除旧文件
+resume.html
+resume.pdf
+resume1.pdf
+image.png
+
+# 排除旧计划
+计划.md
+计划_v2.md
+计划_v3.md
+原始提示词.md
+
+# 排除脚本
+pdf_to_images.py
+
+# 排除系统文件
+.DS_Store
+Thumbs.db
