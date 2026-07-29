@@ -59,17 +59,31 @@
   from { background-position: 20% 110%, 60% 130%, 40% 150%; }
   to   { background-position: 25% -20%, 55% -30%, 45% -50%; }
 }
-#bulb { position: absolute; top: 6vh; left: 50%; transform: translateX(-50%); opacity: 0; z-index: 5; pointer-events: none; }
+#bulb { position: absolute; top: 10vh; left: 50%; transform: translateX(-50%); opacity: 0; z-index: 5; pointer-events: none; }
+/* 赛博朋克霓虹灯管：悬挂的细长灯管，青白核心 + 紫外光晕 */
 .bulb-glass {
-  width: 56px; height: 72px;
-  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #ffe9c4 30%, #f5c877 70%, #e0a050 100%);
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  box-shadow: 0 0 30px 8px rgba(255,220,160,0.55), 0 0 80px 30px rgba(255,200,120,0.25), inset 0 -6px 12px rgba(200,120,40,0.4);
+  width: 220px; height: 10px;
+  background: linear-gradient(90deg, transparent 0%, #eaffff 8%, #00f0ff 30%, #eaffff 50%, #00f0ff 70%, #eaffff 92%, transparent 100%);
+  border-radius: 5px;
+  box-shadow:
+    0 0 18px 4px rgba(0,240,255,0.75),
+    0 0 60px 18px rgba(0,180,255,0.35),
+    0 0 120px 40px rgba(120,80,255,0.18);
+  animation: tubeFlicker 7s linear infinite;
 }
 .bulb-screw {
-  width: 24px; height: 16px; margin: -4px auto 0;
-  background: repeating-linear-gradient(180deg, #999 0px, #999 3px, #666 3px, #666 5px);
-  border-radius: 2px 2px 0 0;
+  width: 236px; height: 4px; margin: -13px auto 0;
+  background: linear-gradient(90deg, transparent, #3a4152 15%, #3a4152 85%, transparent);
+  border-radius: 2px;
+  position: relative;
+}
+@keyframes tubeFlicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.75; }
+  94% { opacity: 1; }
+  97% { opacity: 0.85; }
+  98% { opacity: 1; }
 }
 /* 开灯拉环（左上角，单独一根） */
 #switch1 { position: absolute; top: 0; left: 8vw; z-index: 20; }
@@ -82,47 +96,28 @@
 @keyframes hintPulse { 0%,100% { opacity: 0.2; } 50% { opacity: 0.45; } }
 
 /* ============ 场景 2：窗帘 + 文字（开灯后同屏浮现） ============ */
-#intro { position: absolute; inset: 0; z-index: 10; visibility: hidden; }
+#intro { position: absolute; inset: 0; z-index: 10; }
 .intro-bg {
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, #2a2016 0%, #221a10 60%, #1a130b 100%);
+  /* 透明：让开灯后的房间照片透出来，文字浮在亮起的房间上（衔接不卡顿） */
+  background: transparent;
 }
-.curtain {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 12;
-  transform-origin: top center;
-  background:
-    repeating-linear-gradient(90deg,
-      #5a2f18 0px, #6b3a1f 30px, #7d4a2a 55px, #6b3a1f 80px, #552b15 110px, #6b3a1f 140px),
-    linear-gradient(180deg, rgba(255,220,170,0.15) 0%, transparent 30%, rgba(0,0,0,0.35) 100%);
-  background-blend-mode: overlay;
-  box-shadow: inset 0 -40px 60px rgba(0,0,0,0.45);
-}
-.curtain::after {
-  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 60px;
-  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.4) 100%);
-}
-.curtain-rod {
-  position: absolute; top: 4vh; left: 3vw; right: 3vw; height: 14px; z-index: 13;
-  background: linear-gradient(180deg, #9c8465 0%, #6b5b3e 50%, #4a3d28 100%);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
-  border-radius: 7px;
-}
-/* 文字 —— 在窗帘后方（拉开窗帘才看见） */
+/* 文字 —— 浮在亮起的房间上 */
 .intro-text {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
   text-align: center; z-index: 11; width: 92%; max-width: 1000px;
 }
-.intro-line { opacity: 0; transform: translateY(24px); margin-bottom: 0.7rem; text-shadow: 0 2px 12px rgba(0,0,0,0.6); }
+.intro-line { opacity: 0; transform: translateY(24px); margin-bottom: 0.7rem; text-shadow: 0 2px 16px rgba(0,0,0,0.85), 0 0 30px rgba(0,0,0,0.6); }
 .il-1 { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1rem; letter-spacing: 0.35em; color: var(--text-warm-gray); }
 .il-2 { font-weight: 800; font-size: clamp(3rem, 13vw, 9rem); letter-spacing: -0.03em; line-height: 0.95; }
 .il-3 { font-weight: 500; font-size: 2rem; }
 .il-4, .il-5, .il-6 { font-size: 1.2rem; font-weight: 300; }
 .il-6 { font-family: 'Cormorant Garamond', serif; font-style: italic; }
-/* 拉开窗帘的提示拉环（右侧） */
-#curtainPull { position: absolute; top: 0; right: 10vw; z-index: 14; visibility: hidden; opacity: 0; }
+/* 前往思想拉环（右侧，品红） */
+#nextPull { position: absolute; top: 0; right: 10vw; z-index: 14; visibility: hidden; opacity: 0; }
 @media (max-width: 768px) {
   #switch1 { left: 6vw; }
-  #curtainPull { right: 6vw; }
+  #nextPull { right: 6vw; }
 }
 </style>
 </head>
@@ -155,13 +150,11 @@
       <div class="intro-line il-5">关心他的关心</div>
       <div class="intro-line il-6">幻想他的幻想</div>
     </div>
-    <div class="curtain" id="curtain"></div>
-    <div class="curtain-rod" id="curtainRod"></div>
-    <!-- 右侧拉环：拉开窗帘（文字在帘后，拉开即见） -->
-    <div class="lamp-switch" id="curtainPull">
+    <!-- 右侧拉环：前往思想之墙（灭灯翻页） -->
+    <div class="lamp-switch alt" id="nextPull">
       <div class="lamp-base"></div>
       <div class="pull-string"><div class="bead-chain" style="height:90px"></div><div class="pull-handle"></div></div>
-      <div class="switch-tag">拉开窗帘</div>
+      <div class="switch-tag">进入思想</div>
     </div>
   </div>
 </div>
@@ -199,28 +192,15 @@ document.getElementById("switch1").addEventListener("click", function() {
   }, null, 0.24);
   tl.to("#lightGlow", { scale: 1.03, duration: 0.5, ease: "sine.inOut", yoyo: true, repeat: 1 }, "-=0.4");
   tl.to("#hint", { opacity: 0, duration: 0.4 }, 0);
-  // 灯亮后进入"窗帘与文字"
+  // 灯亮后进入"窗帘与文字"：直接浮现文字在亮起的房间上（无背景切换，无缝衔接）
   tl.call(() => {
-    const intro = document.getElementById("intro");
-    intro.style.visibility = "visible";
-    gsap.fromTo(intro, { opacity: 0 }, { opacity: 1, duration: 0.8 });
-    gsap.to(".intro-line", { opacity: 1, y: 0, duration: 0.8, stagger: 0.4, ease: "power2.out", delay: 0.4 });
-    gsap.to("#curtainPull", { visibility: "visible", opacity: 1, duration: 1, delay: 1.5 });
-  }, null, "+=1.0");
+    gsap.to(".intro-line", { opacity: 1, y: 0, duration: 0.8, stagger: 0.4, ease: "power2.out" });
+    gsap.to("#nextPull", { visibility: "visible", opacity: 1, duration: 1, delay: 1.5 });
+  }, null, "+=0.5");
 });
 
-// ---------- 第二根拉环：拉开窗帘 → 停留欣赏 → 翻页到思想墙 ----------
-let curtainOpen = false;
-document.getElementById("curtainPull").addEventListener("click", function() {
-  if (curtainOpen) return; curtainOpen = true;
-  pullString(this);
-  // 窗帘向上卷起
-  gsap.timeline({ delay: 0.3 })
-    .to("#curtain", { scaleY: 0, duration: 1.6, ease: "power2.inOut" })
-    .to("#curtainRod", { opacity: 0, duration: 0.4 }, "-=0.3")
-    // 拉开后停留 6 秒欣赏文字，然后翻页
-    .call(() => setTimeout(() => PageNav.go("thoughts.html"), 6000));
-});
+// ---------- 第二根拉环：灭灯翻页到思想之墙 ----------
+PageNav.bindSwitch(document.getElementById("nextPull"), "thoughts.html");
 </script>
 </body>
 </html>

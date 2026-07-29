@@ -36,66 +36,109 @@ body::after {
 }
 
 /* ============================================================
-   真实拉绳开关组件（可复用）
+   赛博朋克拉绳开关（可复用）
+   暗铬底座 + 霓虹能量绳 + 六边形拉环
    ============================================================ */
 .lamp-switch {
   position: absolute;
   cursor: pointer;
   z-index: 100;
   display: flex; flex-direction: column; align-items: center;
-  filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.5));
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+  --neon: #00f0ff;                 /* 默认青色霓虹 */
+  --neon-glow: rgba(0,240,255,0.6);
+  filter: drop-shadow(0 0 8px var(--neon-glow));
 }
+.lamp-switch.alt {                 /* 第二个拉环：品红霓虹 */
+  --neon: #ff2d78;
+  --neon-glow: rgba(255,45,120,0.55);
+}
+/* 底座：暗铬 + 底部霓虹灯带 */
 .lamp-base {
-  width: 60px; height: 14px;
-  background: linear-gradient(180deg, #3d3d3d 0%, #2a2a2a 50%, #1a1a1a 100%);
-  border-radius: 0 0 8px 8px;
-  box-shadow: inset 0 -2px 4px rgba(255,255,255,0.08), 0 2px 6px rgba(0,0,0,0.6);
+  width: 66px; height: 16px;
+  background: linear-gradient(180deg, #2b303c 0%, #14171d 55%, #090b0f 100%);
+  border-radius: 3px;
+  border-top: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.75);
+  position: relative;
+}
+.lamp-base::after {
+  content: '';
+  position: absolute; bottom: -3px; left: 10px; right: 10px; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--neon), transparent);
+  box-shadow: 0 0 10px var(--neon), 0 0 22px var(--neon-glow);
+  animation: neonPulse 3.2s ease-in-out infinite;
 }
 .pull-string {
   display: flex; flex-direction: column; align-items: center;
   transform-origin: top center;
   will-change: transform;
 }
+/* 能量绳：发光数据线，内有数据脉冲向下流动 */
 .bead-chain {
-  width: 4px; height: 140px;
-  background-image: radial-gradient(circle, #c8c8c8 0px, #c8c8c8 2px, transparent 3px);
-  background-size: 4px 7px;
-  background-repeat: repeat-y;
-  background-position: center top;
-  filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.4));
-}
-.pull-handle {
-  margin-top: -1px;
-  width: 18px; height: 32px;
-  background: linear-gradient(90deg, #8a8a8a 0%, #d8d8d8 40%, #f0f0f0 50%, #d8d8d8 60%, #8a8a8a 100%);
-  border-radius: 50% 50% 50% 50% / 20% 20% 80% 80%;
-  box-shadow: inset 0 -3px 5px rgba(0,0,0,0.3), inset 0 2px 3px rgba(255,255,255,0.4), 0 3px 6px rgba(0,0,0,0.5);
+  width: 3px; height: 140px;
+  background: linear-gradient(180deg, var(--neon) 0%, var(--neon-glow) 100%);
+  box-shadow: 0 0 6px var(--neon), 0 0 14px var(--neon-glow);
+  border-radius: 2px;
   position: relative;
+  overflow: hidden;
+}
+.bead-chain::after {
+  content: '';
+  position: absolute; left: 0; top: -30px; width: 100%; height: 26px;
+  background: linear-gradient(180deg, transparent, #ffffff, transparent);
+  opacity: 0.9;
+  animation: dataPulse 2.2s linear infinite;
+}
+/* 六边形拉环：暗铬壳 + 霓虹核心 */
+.pull-handle {
+  margin-top: 6px;
+  width: 30px; height: 34px;
+  background: linear-gradient(135deg, #232936 0%, #2e3542 50%, #10131a 100%);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  position: relative;
+}
+.pull-handle::before {
+  content: '';
+  position: absolute; inset: 2px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  border: none;
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--neon);
 }
 .pull-handle::after {
   content: '';
-  position: absolute; top: 5px; left: 5px;
-  width: 4px; height: 10px;
-  background: rgba(255,255,255,0.5);
-  border-radius: 50%;
-  filter: blur(1px);
+  position: absolute; inset: 9px;
+  background: radial-gradient(circle, #ffffff 0%, var(--neon) 45%, transparent 75%);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  animation: neonPulse 2s ease-in-out infinite;
 }
 .lamp-switch:hover .pull-handle {
-  box-shadow: inset 0 -3px 5px rgba(0,0,0,0.3), inset 0 2px 3px rgba(255,255,255,0.4), 0 3px 6px rgba(0,0,0,0.5), 0 0 12px rgba(255,244,230,0.25);
+  filter: brightness(1.4);
+}
+.lamp-switch:hover .bead-chain {
+  box-shadow: 0 0 10px var(--neon), 0 0 24px var(--neon-glow);
+}
+@keyframes neonPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+@keyframes dataPulse {
+  0% { top: -30px; }
+  100% { top: 110%; }
 }
 /* 拉环标签（上一页/下一页） */
 .switch-tag {
-  margin-top: 10px;
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: 0.8rem;
-  letter-spacing: 0.25em;
-  color: rgba(240,236,228,0.4);
+  margin-top: 12px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.35em;
+  color: rgba(240,236,228,0.45);
   writing-mode: vertical-rl;
+  text-shadow: 0 0 8px var(--neon-glow);
 }
-.lamp-switch:hover .switch-tag { color: rgba(255,244,230,0.8); }
+.lamp-switch:hover .switch-tag { color: var(--neon); }
 
 /* 左上双拉环布局 */
 .switch-cluster { position: fixed; top: 0; left: 5vw; display: flex; gap: 4vw; z-index: 100; }

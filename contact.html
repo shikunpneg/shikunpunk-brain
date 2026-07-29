@@ -59,32 +59,48 @@ body::before {
 .sig-g2 { font-family: 'Long Cang', cursive; color: #4a3520; }
 .sig-g3 { font-family: 'Liu Jian Mao Cao', cursive; color: #2a1e12; }
 .sig-g4 { font-family: 'Caveat', cursive; color: #54382a; }
-/* 红色印章（朱砂印泥效果） */
-.seal {
-  position: absolute;
-  font-family: 'Noto Serif SC', serif; font-weight: 900;
-  color: #b8352a;
-  border: 3px solid #b8352a;
-  padding: 0.3em 0.5em;
-  font-size: clamp(1rem, 2.4vw, 1.6rem);
-  opacity: 0;
-  user-select: none;
-  line-height: 1.1;
-  letter-spacing: 0.1em;
-  filter: url(#sealRough);
-  box-shadow: inset 0 0 8px rgba(184,53,42,0.3);
+/* 留言插入区 */
+#guestMarks { position: absolute; inset: 0; }
+/* 留言输入框（留给别人评论） */
+#leaveMark {
+  position: fixed; bottom: 12vh; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 0.6rem; z-index: 50; opacity: 0;
 }
-/* 社媒链接：刻在墙下角的一行小字 */
-.contact-row {
-  position: fixed; bottom: 5vh; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 2rem; z-index: 50; opacity: 0;
+#markInput {
+  background: rgba(20,12,6,0.35);
+  border: 1px solid rgba(74,53,32,0.5);
+  border-bottom: 2px solid #4a3520;
+  color: #2a1e12;
+  font-family: 'Long Cang', cursive; font-size: 1.2rem;
+  padding: 0.5rem 0.9rem; min-width: 220px;
+  outline: none; border-radius: 2px;
+  backdrop-filter: blur(2px);
 }
-.contact-row a {
-  color: #4a3520; font-size: 1.4rem;
+#markInput::placeholder { color: rgba(74,53,32,0.6); }
+#markBtn {
+  background: #2a1e12; color: #d8cdb8;
+  border: 1px solid #2a1e12;
+  font-family: 'Zhi Mang Xing', cursive; font-size: 1.15rem; letter-spacing: 0.2em;
+  padding: 0.5rem 1.2rem; cursor: pointer; border-radius: 2px;
   transition: all 0.3s;
 }
-.contact-row a:hover { color: #b8352a; transform: translateY(-3px); }
-.contact-row .xhs-icon svg { width: 24px; height: 24px; display: block; }
+#markBtn:hover { background: #b8352a; border-color: #b8352a; color: #fff; }
+/* 社媒链接：刻在墙下角（含邮箱文字） */
+.contact-row {
+  position: fixed; bottom: 4.5vh; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 2rem; z-index: 50; opacity: 0;
+  flex-wrap: wrap; justify-content: center; max-width: 92vw;
+}
+.contact-item {
+  color: #4a3520; font-size: 1.3rem;
+  transition: all 0.3s; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 0.5rem;
+}
+.contact-item span {
+  font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; letter-spacing: 0.03em;
+}
+.contact-item:hover { color: #b8352a; transform: translateY(-3px); }
+.contact-row .xhs-icon svg { width: 22px; height: 22px; display: block; }
 @media (max-width: 768px) {
   .sig-main { font-size: clamp(3rem, 14vw, 5rem); }
 }
@@ -105,9 +121,9 @@ body::before {
 </svg>
 
 <div id="signatureWall">
-  <!-- 主签名（最后盖章式落下） -->
+  <!-- 主人的主签名（盖章式落下） -->
   <div class="sig sig-main" data-stamp>&mdash; shikunpunk</div>
-  <!-- 到访者签名（逐个浮现） -->
+  <!-- 到访者留言（逐个浮现） -->
   <div class="sig sig-g1" style="top:12%; left:8%;  font-size:1.6rem; transform:rotate(3deg);">有朋自远方来</div>
   <div class="sig sig-g2" style="top:16%; right:10%; font-size:1.4rem; transform:rotate(-5deg);">保持思考</div>
   <div class="sig sig-g3" style="top:26%; left:14%; font-size:1.3rem; transform:rotate(2deg);">2026 · 到此一游</div>
@@ -118,19 +134,25 @@ body::before {
   <div class="sig sig-g4" style="top:68%; right:22%; font-size:1.15rem; transform:rotate(5deg);">walk into the brain</div>
   <div class="sig sig-g2" style="top:40%; left:24%; font-size:1.1rem; transform:rotate(-6deg);">独立思考</div>
   <div class="sig sig-g1" style="top:44%; right:14%; font-size:1.2rem; transform:rotate(2deg);">创造而非模仿</div>
-  <!-- 朱砂印章 -->
-  <div class="seal" data-stamp style="top:58%; left:56%; transform:rotate(6deg);">史鲲鹏印</div>
+  <!-- 留言动态插入区 -->
+  <div id="guestMarks"></div>
+</div>
+
+<!-- 留言输入（留给别人评论） -->
+<div id="leaveMark">
+  <input id="markInput" type="text" maxlength="24" placeholder="在墙上留下一句…" autocomplete="off">
+  <button id="markBtn" type="button">印 上</button>
 </div>
 
 <div class="contact-row">
-  <a href="https://github.com/shikunpneg" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>
-  <a href="mailto:ok2442504@gmail.com" title="Gmail"><i class="fa-solid fa-envelope"></i></a>
-  <a href="mailto:skpskpskp@qq.com" title="QQ 邮箱"><i class="fa-solid fa-envelope-open"></i></a>
-  <a href="https://www.xiaohongshu.com/user/profile/65a7570000000000080155f7" target="_blank" class="xhs-icon" title="小红书">
+  <a class="contact-item" href="https://github.com/shikunpneg" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i><span>shikunpneg</span></a>
+  <a class="contact-item" href="mailto:ok2442504@gmail.com" title="Gmail"><i class="fa-solid fa-envelope"></i><span>ok2442504@gmail.com</span></a>
+  <a class="contact-item" href="mailto:skpskpskp@qq.com" title="QQ 邮箱"><i class="fa-solid fa-envelope-open"></i><span>skpskpskp@qq.com</span></a>
+  <a class="contact-item xhs-icon" href="https://www.xiaohongshu.com/user/profile/65a7570000000000080155f7" target="_blank" title="小红书">
     <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
       <rect x="2" y="2" width="44" height="44" rx="10" fill="#ff2442"/>
       <text x="24" y="30" text-anchor="middle" fill="#fff" font-size="13" font-weight="700" font-family="'PingFang SC','Microsoft YaHei',sans-serif" letter-spacing="1">小红书</text>
-    </svg>
+    </svg><span>@shikunpunk</span>
   </a>
 </div>
 
@@ -156,8 +178,8 @@ PageNav.arrive();
 PageNav.bindSwitch(document.getElementById("prevSwitch"), "desk.html");
 PageNav.bindSwitch(document.getElementById("homeSwitch"), "index.html");
 
-/* ---------- 签名动效：普通签名淡入浮现，主签名与印章"盖章式"砸落 ---------- */
-// 到访者签名：手写浮现（缩放+淡入，像笔尖落定）
+/* ---------- 留言动效：到访留言淡入，主签名盖章式砸落 ---------- */
+// 到访留言：手写浮现（缩放+淡入，像笔尖落定）
 gsap.to(".sig:not([data-stamp])", {
   opacity: 1, duration: 0.7, ease: "power2.out",
   stagger: { each: 0.22, from: "random" },
@@ -172,21 +194,69 @@ gsap.fromTo(".sig-main",
   { opacity: 1, scale: 1, y: 0, rotation: -4, filter: "blur(0px)",
     duration: 0.55, ease: "power3.in", delay: 3.2,
     onComplete: () => {
-      // 落定后轻微弹跳 + 墙面微震
       gsap.fromTo(".sig-main", { scale: 1.06 }, { scale: 1, duration: 0.4, ease: "elastic.out(1, 0.4)" });
       gsap.fromTo("#signatureWall", { x: 0 }, { x: 2, duration: 0.05, yoyo: true, repeat: 3 });
+      // 主签名落定后，浮现留言输入框与联系方式
+      gsap.to("#leaveMark", { opacity: 1, duration: 0.8, delay: 0.3 });
+      gsap.to(".contact-row", { opacity: 1, duration: 0.8, delay: 0.5 });
     }
   });
-// 印章：最后落下（比主签名更"重"）
-gsap.fromTo(".seal",
-  { opacity: 0, scale: 2.6, rotation: 6, filter: "blur(8px)" },
-  { opacity: 1, scale: 1, rotation: 6, filter: "blur(0px)",
-    duration: 0.4, ease: "power4.in", delay: 4.2,
-    onComplete: () => {
-      gsap.fromTo(".seal", { scale: 1.1 }, { scale: 1, duration: 0.35, ease: "elastic.out(1.2, 0.4)" });
-      gsap.to(".contact-row", { opacity: 1, duration: 0.8, delay: 0.3 });
+
+/* ---------- 留言功能：把别人写的话"印"到墙上 ---------- */
+(function(){
+  const input = document.getElementById("markInput");
+  const btn = document.getElementById("markBtn");
+  const zone = document.getElementById("guestMarks");
+  const fonts = ["sig-g1","sig-g2","sig-g3","sig-g4"];
+  // 预置一批随机位置（围绕主签名散布，避免重叠中心）
+  const spots = [
+    {top:"8%",  left:"30%"}, {top:"10%", right:"30%"},
+    {top:"30%", left:"6%"},  {top:"34%", right:"6%"},
+    {top:"48%", left:"14%"}, {top:"50%", right:"14%"},
+    {top:"64%", left:"12%"}, {top:"66%", right:"12%"},
+    {top:"80%", left:"28%"}, {top:"82%", right:"28%"}
+  ];
+  let idx = 0;
+  // 从 localStorage 读历史留言
+  let marks = [];
+  try { marks = JSON.parse(localStorage.getItem("wallMarks") || "[]"); } catch(e) {}
+  marks.forEach(m => addMark(m, false));
+
+  function addMark(text, animate) {
+    if (idx >= spots.length) return;
+    const spot = spots[idx++];
+    const el = document.createElement("div");
+    el.className = "sig " + fonts[Math.floor(Math.random()*fonts.length)];
+    el.textContent = text;
+    const rot = (Math.random()*10 - 5).toFixed(1);
+    const size = (1.1 + Math.random()*0.6).toFixed(2);
+    el.style.top = spot.top;
+    if (spot.left) el.style.left = spot.left;
+    if (spot.right) el.style.right = spot.right;
+    el.style.fontSize = size + "rem";
+    el.style.transform = "rotate(" + rot + "deg)";
+    zone.appendChild(el);
+    if (animate) {
+      gsap.fromTo(el,
+        { opacity: 0, scale: 2, filter: "blur(4px)" },
+        { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.5, ease: "power3.in",
+          onComplete: () => gsap.fromTo(el, {scale:1.08},{scale:1,duration:0.3,ease:"elastic.out(1,0.4)"}) });
+    } else {
+      el.style.opacity = 1;
     }
-  });
+  }
+  function submit() {
+    const text = input.value.trim();
+    if (!text || idx >= spots.length) return;
+    addMark(text, true);
+    marks.push(text);
+    try { localStorage.setItem("wallMarks", JSON.stringify(marks)); } catch(e) {}
+    input.value = "";
+    input.focus();
+  }
+  btn.addEventListener("click", submit);
+  input.addEventListener("keydown", e => { if (e.key === "Enter") submit(); });
+})();
 </script>
 </body>
 </html>

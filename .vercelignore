@@ -1,20 +1,18 @@
-# 排除论文原始文件
-解决的问题/
+# ===== Vercel 部署忽略文件 =====
+# 注意：不能排除 "解决的问题/" 和 "*.pdf"，因为 desk.html 的 PDF 阅读器需要这些文件
 
-# 排除其他非必要目录
+# 排除非必要目录（这些不在 git 跟踪中，但保留以防万一）
 作品图/
 .claude/
 .git/
 .vercel/
 
-# 排除大文件
-*.pdf
-*.zip
+# 排除不需要的 PDF（简历等）
+resume.pdf
+resume1.pdf
 
 # 排除旧文件
 resume.html
-resume.pdf
-resume1.pdf
 image.png
 
 # 排除旧计划
@@ -29,3 +27,14 @@ pdf_to_images.py
 # 排除系统文件
 .DS_Store
 Thumbs.db
+
+# 排除临时文件
+*.tmp
+*.log
+*.bak
+*.swp
+*~
+
+# 排除 Python 缓存
+__pycache__/
+*.py[cod]

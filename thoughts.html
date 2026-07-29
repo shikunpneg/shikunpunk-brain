@@ -43,6 +43,50 @@ body { background: #100c08; }
 .thought.is-split { visibility: visible; }
 .word-mask { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; }
 .word { display: inline-block; transform: translateY(115%); will-change: transform; }
+
+/* ============================================================
+   电流感文字：底色呼吸 + 随机电流闪烁 + 光晕抖动
+   ============================================================ */
+.thought {
+  color: var(--text-main);
+  text-shadow:
+    0 0 6px rgba(0,240,255,0.12),
+    0 0 18px rgba(0,240,255,0.05);
+  animation: currentBase 4s ease-in-out infinite;
+}
+/* 琥珀色句子的电流光晕偏暖 */
+.t2, .t7 {
+  text-shadow:
+    0 0 6px rgba(232,176,74,0.25),
+    0 0 18px rgba(232,176,74,0.10);
+}
+/* 持续的微弱电流底噪（亮度呼吸） */
+@keyframes currentBase {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.06); }
+}
+/* 电流闪烁：快速抖动 + 光晕爆闪（不定期，像线路接触不良） */
+.thought.zap {
+  animation: currentBase 4s ease-in-out infinite, zapFlicker 0.28s steps(2, jump-none) 1;
+}
+@keyframes zapFlicker {
+  0%   { opacity: 1; text-shadow: 0 0 6px rgba(0,240,255,0.2); transform: translateX(0); }
+  20%  { opacity: 0.35; text-shadow: 0 0 22px rgba(0,240,255,0.9), 0 0 50px rgba(0,240,255,0.5); transform: translateX(-1.5px) skewX(-1deg); }
+  40%  { opacity: 1; text-shadow: 0 0 8px rgba(0,240,255,0.3); transform: translateX(1px); }
+  60%  { opacity: 0.55; text-shadow: 0 0 30px rgba(120,200,255,0.9), 0 0 70px rgba(0,240,255,0.5); transform: translateX(-1px) skewX(0.6deg); }
+  80%  { opacity: 0.9; text-shadow: 0 0 10px rgba(0,240,255,0.4); transform: translateX(0.5px); }
+  100% { opacity: 1; text-shadow: 0 0 6px rgba(0,240,255,0.12); transform: translateX(0); }
+}
+/* 偶发"坏灯管"式的整句闪烁（更强） */
+.thought.surge {
+  animation: surgeFlash 0.5s steps(3, jump-none) 1;
+}
+@keyframes surgeFlash {
+  0%, 100% { opacity: 1; }
+  25% { opacity: 0.2; text-shadow: 0 0 40px rgba(0,240,255,1), 0 0 90px rgba(0,240,255,0.7); }
+  50% { opacity: 0.85; }
+  75% { opacity: 0.4; text-shadow: 0 0 24px rgba(0,240,255,0.8); }
+}
 /* 每句话的独立排版性格（锐利 + 不规矩） */
 .t1  { font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: clamp(1.7rem, 4.6vw, 3.4rem); transform: rotate(-1.3deg); }
 .t2  { font-weight: 300; font-size: clamp(1rem, 2vw, 1.35rem); margin-left: 20vw; color: var(--accent); }
@@ -78,7 +122,7 @@ body { background: #100c08; }
     <div class="pull-string"><div class="bead-chain"></div><div class="pull-handle"></div></div>
     <div class="switch-tag">回客厅</div>
   </div>
-  <div class="lamp-switch" id="nextSwitch">
+  <div class="lamp-switch alt" id="nextSwitch">
     <div class="lamp-base"></div>
     <div class="pull-string"><div class="bead-chain"></div><div class="pull-handle"></div></div>
     <div class="switch-tag">看作品</div>
@@ -111,13 +155,39 @@ function splitThought(el) {
   el.classList.add("is-split");
 }
 const thoughts = document.querySelectorAll(".thought[data-split]");
+
+/* ---------- 自动逐句浮现 + 一边出现一边平滑下滚（无需用户拉） ---------- */
 thoughts.forEach((el, i) => {
   splitThought(el);
+  const revealDelay = 0.6 + i * 1.15; // 每句间隔，留出阅读时间
+  // 逐词遮罩浮现
   gsap.to(el.querySelectorAll(".word"), {
-    y: 0, duration: 0.85, ease: "expo.out",
-    stagger: 0.05, delay: 0.5 + i * 0.5
+    y: 0, duration: 0.9, ease: "expo.out",
+    stagger: 0.06, delay: revealDelay
+  });
+  // 该句浮现时，把镜头平滑推到这一句（一边出现一边往下走）
+  gsap.delayedCall(revealDelay + 0.1, () => {
+    const absTop = el.getBoundingClientRect().top + window.scrollY;
+    const target = Math.max(0, absTop - window.innerHeight * 0.35);
+    window.scrollTo({ top: target, behavior: "smooth" });
   });
 });
+
+/* ---------- 随机电流闪烁：不定期给某句加 zap / surge ---------- */
+function randomZap() {
+  const shown = Array.from(thoughts).filter(t => t.classList.contains("is-split"));
+  if (shown.length) {
+    const el = shown[Math.floor(Math.random() * shown.length)];
+    const strong = Math.random() < 0.25;
+    el.classList.remove("zap", "surge");
+    void el.offsetWidth; // 重启动画
+    el.classList.add(strong ? "surge" : "zap");
+    setTimeout(() => el.classList.remove("zap", "surge"), strong ? 520 : 300);
+  }
+  // 随机间隔 0.8s ~ 2.6s 再来一次
+  setTimeout(randomZap, 800 + Math.random() * 1800);
+}
+setTimeout(randomZap, 1200);
 </script>
 </body>
 </html>
