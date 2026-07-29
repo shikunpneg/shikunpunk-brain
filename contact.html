@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>签名墙</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Caveat:wght@400;500;700&family=Zhi+Mang+Xing&family=Long+Cang&family=Liu+Jian+Mao+Cao&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+/* ============================================================
+   签名墙 —— 一面被无数次到访者签过的老墙
+   签名以"盖章/手写浮现"的动效一个个印上去
+   ============================================================ */
+body {
+  /* 真实的老石灰墙：泛黄、污渍、细微裂纹、顶部暖光 */
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,200,120,0.14) 0%, transparent 55%),
+    radial-gradient(ellipse at 15% 80%, rgba(80,55,30,0.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 30%, rgba(60,40,20,0.15) 0%, transparent 45%),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 1px, transparent 1px, transparent 6px),
+    repeating-linear-gradient(0deg, rgba(255,244,230,0.012) 0px, rgba(255,244,230,0.012) 2px, transparent 2px, transparent 11px),
+    linear-gradient(160deg, #d8cdb8 0%, #c4b69e 40%, #a89880 75%, #8a7a64 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+/* 墙面阴影暗角 */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1;
+  box-shadow: inset 0 0 180px rgba(30,20,10,0.55);
+}
+#signatureWall {
+  position: relative; z-index: 2;
+  min-height: 100vh;
+  padding: 14vh 6vw 20vh;
+}
+/* ---------- 单个签名（印章/手写风格） ---------- */
+.sig {
+  position: absolute;
+  opacity: 0;
+  transform-origin: center;
+  user-select: none;
+  line-height: 1.2;
+  filter: url(#roughInk); /* 墨迹毛边 */
+}
+/* 主人的主签名：最大、手写 Caveat、墨色 */
+.sig-main {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(4rem, 11vw, 8rem);
+  color: #1f1610;
+  top: 30%; left: 50%;
+  transform: translate(-50%,-50%) rotate(-4deg);
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.15), -1px 0 0 rgba(0,0,0,0.1);
+}
+/* 到访者的签名：中文手写字体、不同墨色与角度 */
+.sig-g1 { font-family: 'Zhi Mang Xing', cursive; color: #3a2a1a; }
+.sig-g2 { font-family: 'Long Cang', cursive; color: #4a3520; }
+.sig-g3 { font-family: 'Liu Jian Mao Cao', cursive; color: #2a1e12; }
+.sig-g4 { font-family: 'Caveat', cursive; color: #54382a; }
+/* 红色印章（朱砂印泥效果） */
+.seal {
+  position: absolute;
+  font-family: 'Noto Serif SC', serif; font-weight: 900;
+  color: #b8352a;
+  border: 3px solid #b8352a;
+  padding: 0.3em 0.5em;
+  font-size: clamp(1rem, 2.4vw, 1.6rem);
+  opacity: 0;
+  user-select: none;
+  line-height: 1.1;
+  letter-spacing: 0.1em;
+  filter: url(#sealRough);
+  box-shadow: inset 0 0 8px rgba(184,53,42,0.3);
+}
+/* 社媒链接：刻在墙下角的一行小字 */
+.contact-row {
+  position: fixed; bottom: 5vh; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 2rem; z-index: 50; opacity: 0;
+}
+.contact-row a {
+  color: #4a3520; font-size: 1.4rem;
+  transition: all 0.3s;
+}
+.contact-row a:hover { color: #b8352a; transform: translateY(-3px); }
+.contact-row .xhs-icon svg { width: 24px; height: 24px; display: block; }
+@media (max-width: 768px) {
+  .sig-main { font-size: clamp(3rem, 14vw, 5rem); }
+}
+</style>
+</head>
+<body>
+
+<!-- SVG 滤镜：墨迹毛边 / 印章粗糙感 -->
+<svg width="0" height="0" style="position:absolute">
+  <filter id="roughInk">
+    <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5"/>
+  </filter>
+  <filter id="sealRough">
+    <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="4"/>
+  </filter>
+</svg>
+
+<div id="signatureWall">
+  <!-- 主签名（最后盖章式落下） -->
+  <div class="sig sig-main" data-stamp>&mdash; shikunpunk</div>
+  <!-- 到访者签名（逐个浮现） -->
+  <div class="sig sig-g1" style="top:12%; left:8%;  font-size:1.6rem; transform:rotate(3deg);">有朋自远方来</div>
+  <div class="sig sig-g2" style="top:16%; right:10%; font-size:1.4rem; transform:rotate(-5deg);">保持思考</div>
+  <div class="sig sig-g3" style="top:26%; left:14%; font-size:1.3rem; transform:rotate(2deg);">2026 · 到此一游</div>
+  <div class="sig sig-g4" style="top:22%; right:18%; font-size:1.2rem; transform:rotate(-3deg);">feel his feelings</div>
+  <div class="sig sig-g1" style="top:52%; left:6%;  font-size:1.5rem; transform:rotate(-4deg);">幻想他的幻想</div>
+  <div class="sig sig-g2" style="top:60%; right:8%; font-size:1.35rem; transform:rotate(4deg);">关心他的关心</div>
+  <div class="sig sig-g3" style="top:72%; left:20%; font-size:1.25rem; transform:rotate(-2deg);">人有人的用处</div>
+  <div class="sig sig-g4" style="top:68%; right:22%; font-size:1.15rem; transform:rotate(5deg);">walk into the brain</div>
+  <div class="sig sig-g2" style="top:40%; left:24%; font-size:1.1rem; transform:rotate(-6deg);">独立思考</div>
+  <div class="sig sig-g1" style="top:44%; right:14%; font-size:1.2rem; transform:rotate(2deg);">创造而非模仿</div>
+  <!-- 朱砂印章 -->
+  <div class="seal" data-stamp style="top:58%; left:56%; transform:rotate(6deg);">史鲲鹏印</div>
+</div>
+
+<div class="contact-row">
+  <a href="https://github.com/shikunpneg" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>
+  <a href="mailto:ok2442504@gmail.com" title="Gmail"><i class="fa-solid fa-envelope"></i></a>
+  <a href="mailto:skpskpskp@qq.com" title="QQ 邮箱"><i class="fa-solid fa-envelope-open"></i></a>
+  <a href="https://www.xiaohongshu.com/user/profile/65a7570000000000080155f7" target="_blank" class="xhs-icon" title="小红书">
+    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="44" height="44" rx="10" fill="#ff2442"/>
+      <text x="24" y="30" text-anchor="middle" fill="#fff" font-size="13" font-weight="700" font-family="'PingFang SC','Microsoft YaHei',sans-serif" letter-spacing="1">小红书</text>
+    </svg>
+  </a>
+</div>
+
+<!-- 左上双拉环 -->
+<div class="switch-cluster">
+  <div class="lamp-switch" id="prevSwitch">
+    <div class="lamp-base"></div>
+    <div class="pull-string"><div class="bead-chain"></div><div class="pull-handle"></div></div>
+    <div class="switch-tag">回书桌</div>
+  </div>
+  <div class="lamp-switch" id="homeSwitch">
+    <div class="lamp-base"></div>
+    <div class="pull-string"><div class="bead-chain"></div><div class="pull-handle"></div></div>
+    <div class="switch-tag">回门口</div>
+  </div>
+</div>
+
+<div class="page-veil" id="pageVeil"></div>
+
+<script src="shared.js"></script>
+<script>
+PageNav.arrive();
+PageNav.bindSwitch(document.getElementById("prevSwitch"), "desk.html");
+PageNav.bindSwitch(document.getElementById("homeSwitch"), "index.html");
+
+/* ---------- 签名动效：普通签名淡入浮现，主签名与印章"盖章式"砸落 ---------- */
+// 到访者签名：手写浮现（缩放+淡入，像笔尖落定）
+gsap.to(".sig:not([data-stamp])", {
+  opacity: 1, duration: 0.7, ease: "power2.out",
+  stagger: { each: 0.22, from: "random" },
+  delay: 0.6,
+  startAt: { scale: 1.3, filter: "blur(3px)" },
+  scale: 1,
+  clearProps: "filter"
+});
+// 主签名：从上方"砸"下来（盖章感：快速下落+回弹+墨晕扩散）
+gsap.fromTo(".sig-main",
+  { opacity: 0, scale: 2.2, y: -40, rotation: -4, filter: "blur(6px)" },
+  { opacity: 1, scale: 1, y: 0, rotation: -4, filter: "blur(0px)",
+    duration: 0.55, ease: "power3.in", delay: 3.2,
+    onComplete: () => {
+      // 落定后轻微弹跳 + 墙面微震
+      gsap.fromTo(".sig-main", { scale: 1.06 }, { scale: 1, duration: 0.4, ease: "elastic.out(1, 0.4)" });
+      gsap.fromTo("#signatureWall", { x: 0 }, { x: 2, duration: 0.05, yoyo: true, repeat: 3 });
+    }
+  });
+// 印章：最后落下（比主签名更"重"）
+gsap.fromTo(".seal",
+  { opacity: 0, scale: 2.6, rotation: 6, filter: "blur(8px)" },
+  { opacity: 1, scale: 1, rotation: 6, filter: "blur(0px)",
+    duration: 0.4, ease: "power4.in", delay: 4.2,
+    onComplete: () => {
+      gsap.fromTo(".seal", { scale: 1.1 }, { scale: 1, duration: 0.35, ease: "elastic.out(1.2, 0.4)" });
+      gsap.to(".contact-row", { opacity: 1, duration: 0.8, delay: 0.3 });
+    }
+  });
+</script>
+</body>
+</html>

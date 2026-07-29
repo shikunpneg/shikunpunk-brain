@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>窗墙 — Shikunpunk 的大脑</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Caveat:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+body {
+  /* 真实的展厅墙：砖石质感 + 顶部射灯洗墙光 */
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(255,200,130,0.12) 0%, transparent 45%),
+    radial-gradient(ellipse at 55% 0%, rgba(255,210,150,0.10) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 0%, rgba(255,200,130,0.12) 0%, transparent 45%),
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.10) 0px, rgba(0,0,0,0.10) 2px, transparent 2px, transparent 34px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.06) 0px, rgba(0,0,0,0.06) 2px, transparent 2px, transparent 82px),
+    linear-gradient(180deg, #241a10 0%, #1a1209 50%, #120c06 100%);
+  min-height: 100vh;
+}
+#gallery { padding: 20vh 5vw 25vh; position: relative; }
+.window-wall { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem; max-width: 1240px; margin: 0 auto; }
+.window-card {
+  cursor: pointer; opacity: 0; transform: translateY(50px);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.window-card:hover { transform: perspective(900px) translateZ(24px) scale(1.03) !important; }
+.window-frame {
+  border: 8px solid #2a2018; border-radius: 4px;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,244,230,0.06);
+  overflow: hidden; aspect-ratio: 3/2;
+  background: linear-gradient(180deg, #3a2c1b, #2a1e12);
+  position: relative;
+}
+.window-frame::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,244,230,0.08) 0%, transparent 40%);
+  pointer-events: none;
+}
+.window-frame img { width: 100%; height: 100%; object-fit: cover; }
+.window-caption { padding: 0.9rem 0.2rem 0; }
+.window-caption .title { font-family: 'Noto Serif SC', serif; font-weight: 600; font-size: 1rem; margin-bottom: 0.25rem; }
+.window-caption .desc { font-size: 0.82rem; color: var(--text-warm-gray); font-weight: 300; }
+/* 序号标签（stabondar 细节） */
+.window-caption .idx {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  color: var(--accent); font-size: 0.8rem; letter-spacing: 0.15em;
+  display: block; margin-bottom: 0.2rem;
+}
+@media (max-width: 768px) {
+  .window-wall { grid-template-columns: repeat(2, 1fr); gap: 1.4rem; }
+  #gallery { padding: 18vh 4vw 20vh; }
+}
+
+/* ============================================================
+   全屏作品预览 Lightbox：先看大图 → 再提示跳转
+   ============================================================ */
+.work-lightbox {
+  position: fixed; inset: 0; z-index: 850;
+  background: rgba(5,4,3,0.94);
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 6vh 5vw;
+}
+.work-lightbox.open { display: flex; }
+.lb-inner { max-width: 1000px; width: 100%; text-align: center; }
+.lb-img-wrap {
+  border: 8px solid #2a2018; border-radius: 4px;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.7), inset 0 0 30px rgba(0,0,0,0.3);
+  overflow: hidden; margin-bottom: 2rem;
+  max-height: 62vh;
+}
+.lb-img-wrap img { width: 100%; height: 100%; max-height: 62vh; object-fit: contain; background: #0a0a0a; }
+.lb-title { font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: 1.6rem; margin-bottom: 0.4rem; }
+.lb-desc { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--text-warm-gray); margin-bottom: 2rem; letter-spacing: 0.1em; }
+.lb-actions { display: flex; gap: 1.2rem; justify-content: center; }
+.lb-btn {
+  padding: 0.85rem 2.2rem; cursor: pointer;
+  font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; letter-spacing: 0.15em;
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  border-radius: 2px;
+}
+.lb-visit {
+  background: var(--accent); color: #1a130b; border: 1px solid var(--accent);
+  font-weight: 700;
+}
+.lb-visit:hover { background: #f5c877; transform: translateY(-3px); box-shadow: 0 8px 24px rgba(232,176,74,0.3); }
+.lb-back {
+  background: transparent; color: var(--text-warm-gray); border: 1px solid rgba(255,244,230,0.25);
+}
+.lb-back:hover { border-color: rgba(255,244,230,0.6); color: var(--text-main); }
+</style>
+</head>
+<body>
+
+<div id="gallery">
+  <div class="window-wall" id="windowWall"></div>
+</div>
+
+<div class="switch-cluster">
+  <div class="lamp-switch" id="prevSwitch">
+    <div class="lamp-base"></div>
+    <div class="pull-string"><div class="bead-chain"></div><div class="pull-handle"></div></div>
+    <div class="switch-tag">回思想</div>
+  </div>
+  <div class="lamp-switch" id="nextSwitch">
+    <div class="lamp-base"></div>
+    <div class="pull-string"><div class="bead-chain"></div><div class="pull-handle"></div></div>
+    <div class="switch-tag">看书桌</div>
+  </div>
+</div>
+
+<div class="page-veil" id="pageVeil"></div>
+
+<!-- 全屏作品预览 Lightbox -->
+<div class="work-lightbox" id="workLightbox">
+  <div class="lb-inner">
+    <div class="lb-img-wrap"><img id="lbImg" src="" alt=""></div>
+    <div class="lb-title" id="lbTitle"></div>
+    <div class="lb-desc" id="lbDesc"></div>
+    <div class="lb-actions">
+      <button class="lb-btn lb-visit" id="lbVisit">前往作品 →</button>
+      <button class="lb-btn lb-back" id="lbBack">返回窗墙</button>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+const works = [
+  { title:"shikunpunk 的小站", desc:"静态博客，记录笔记与技术文章", url:"https://www.shikunpunk.fun", img:"screenshots/work_a_blog.jpg" },
+  { title:"世界杯预测器", desc:"一个预测世界杯的模型", url:"http://8.148.66.127:8000/", img:"screenshots/work_b_worldcup.jpg" },
+  { title:"fast-read-book", desc:"知识图谱快速重构图书的工具", url:"https://github.com/shikunpneg/fast_read_book", img:"screenshots/work_fast_read_book.jpg" },
+  { title:"xhs-rag", desc:"小红书博主内容 RAG 检索系统", url:"https://github.com/shikunpneg/xhs-rag", img:"screenshots/work_d_xhsrag.jpg" },
+  { title:"see-quantum world", desc:"可视化交互量子学习网站", url:"https://quantum-viz-chi.vercel.app/", img:"screenshots/work_e_quantum.jpg" },
+  { title:"量子编年史", desc:"文字冒险游戏，探索量子世界", url:"https://quantum-chronicle.vercel.app", img:"screenshots/work_quantum_chronicle.jpg" },
+  { title:"向山朝圣知音湖上的水怪", desc:"2024 FIRST 主动放映 · 现场执行", url:"https://mp.weixin.qq.com/s/cSIiHJAOEB9IuwpWdjMECg", img:"screenshots/work_7_mountain.jpg" },
+  { title:"未来 母亲", desc:"2025 FIRST 主动放映 · 策展人", url:"https://www.xiaohongshu.com/explore/6823a46e0000000023013e06", img:"screenshots/work_8_futuremother.jpg" },
+  { title:"我 返回 故乡", desc:"2026 FIRST 主动放映 · 策展人", url:"https://www.xiaohongshu.com/explore/69cfe03d0000000022001536", img:"screenshots/work_9_hometown.jpg" },
+  { title:"穿过他者的凝视", desc:"ANNFFF 动物未来生态影展 · 策展人", url:"https://mp.weixin.qq.com/s/ke4PorDv3xH1K5dHBp1-OQ", img:"screenshots/work_10_gaze.jpg" }
+];
+
+PageNav.arrive();
+PageNav.bindSwitch(document.getElementById("prevSwitch"), "thoughts.html");
+PageNav.bindSwitch(document.getElementById("nextSwitch"), "desk.html");
+
+const wall = document.getElementById("windowWall");
+const lightbox = document.getElementById("workLightbox");
+const lbImg = document.getElementById("lbImg");
+const lbTitle = document.getElementById("lbTitle");
+const lbDesc = document.getElementById("lbDesc");
+const lbVisit = document.getElementById("lbVisit");
+const lbBack = document.getElementById("lbBack");
+let currentUrl = "";
+
+// 打开全屏预览
+function openLightbox(w) {
+  lbImg.src = w.img; lbImg.alt = w.title;
+  lbTitle.textContent = w.title;
+  lbDesc.textContent = w.desc;
+  currentUrl = w.url;
+  lightbox.classList.add("open");
+  document.body.style.overflow = "hidden";
+  gsap.fromTo(lightbox, { opacity: 0 }, { opacity: 1, duration: 0.35 });
+  gsap.fromTo(".lb-inner", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" });
+}
+function closeLightbox() {
+  gsap.to(lightbox, { opacity: 0, duration: 0.3, onComplete: () => {
+    lightbox.classList.remove("open");
+    document.body.style.overflow = "";
+  }});
+}
+lbVisit.addEventListener("click", () => window.open(currentUrl, "_blank"));
+lbBack.addEventListener("click", closeLightbox);
+lightbox.addEventListener("click", (e) => { if (e.target === lightbox) closeLightbox(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLightbox(); });
+
+works.forEach((w, i) => {
+  const card = document.createElement("div");
+  card.className = "window-card";
+  card.innerHTML =
+    "<div class='window-frame'><img src='" + w.img + "' alt='" + w.title + "' loading='lazy'></div>" +
+    "<div class='window-caption'><span class='idx'>" + String(i + 1).padStart(2, "0") + "</span>" +
+    "<div class='title'>" + w.title + "</div><div class='desc'>" + w.desc + "</div></div>";
+  // 第一步：点开看完整大图（第二步在 lightbox 里"前往作品"）
+  card.addEventListener("click", () => openLightbox(w));
+  wall.appendChild(card);
+});
+
+gsap.registerPlugin(ScrollTrigger);
+gsap.to(".window-card", {
+  opacity: 1, y: 0, duration: 0.8, stagger: 0.09, ease: "power3.out", delay: 0.4,
+  scrollTrigger: { trigger: "#gallery", start: "top 85%" }
+});
+</script>
+</body>
+</html>

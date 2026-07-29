@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>书桌 — Shikunpunk 的大脑</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Caveat:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+body {
+  /* 真实的旧木书桌：木纹纵深 + 使用痕迹 + 灯光暗角 */
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(255,190,110,0.10) 0%, transparent 55%),
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.10) 0px, rgba(0,0,0,0.10) 1px, transparent 1px, transparent 5px),
+    repeating-linear-gradient(88deg, rgba(20,10,4,0.15) 0px, rgba(20,10,4,0.15) 2px, transparent 2px, transparent 90px),
+    repeating-linear-gradient(92deg, rgba(60,35,15,0.12) 0px, rgba(60,35,15,0.12) 3px, transparent 3px, transparent 140px),
+    linear-gradient(135deg, #453019 0%, #2e1e0e 45%, #1f1309 100%);
+  min-height: 100vh;
+  box-shadow: inset 0 0 140px rgba(0,0,0,0.6);
+}
+#deskPage { padding: 18vh 3vw 20vh; position: relative; }
+.desk-area { position: relative; max-width: 1280px; margin: 0 auto; min-height: 72vh; }
+.paper {
+  position: absolute; width: 280px;
+  background:
+    repeating-linear-gradient(0deg, transparent 0px, transparent 24px, rgba(120,90,60,0.08) 24px, rgba(120,90,60,0.08) 25px),
+    #f4ede0;
+  border-radius: 2px;
+  box-shadow: 2px 4px 15px rgba(0,0,0,0.45);
+  cursor: pointer; transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s;
+  overflow: hidden;
+  opacity: 0; transform: translateY(80px) rotate(var(--rot, 0deg));
+}
+.paper:hover {
+  transform: translateY(-12px) rotate(0deg) !important;
+  box-shadow: 6px 12px 30px rgba(0,0,0,0.55);
+  z-index: 20;
+}
+.paper-header { padding: 12px 15px 6px; font-family: 'Caveat', cursive; font-size: 1.15rem; font-weight: 700; color: #2a1e12; line-height: 1.3; }
+.paper-year { padding: 0 15px 8px; font-family: 'Caveat', cursive; font-size: 0.9rem; color: #8a7a60; }
+.paper-img { width: 100%; height: 170px; object-fit: cover; border-top: 1px solid #e0d5c0; }
+.paper-open-hint {
+  padding: 6px 15px 10px; font-size: 0.75rem; color: #a08a68;
+  font-family: 'Cormorant Garamond', serif; font-style: italic; letter-spacing: 0.1em;
+}
+@media (max-width: 900px) { .paper { width: 220px; } .desk-area { min-height: 90vh; } }
+@media (max-width: 640px) { .paper { width: 46vw; } }
+</style>
+</head>
+<body>
+
+<div id="deskPage">
+  <div class="desk-area" id="deskArea"></div>
+</div>
+
+<div class="switch-cluster">
+  <div class="lamp-switch" id="prevSwitch">
+    <div class="lamp-base"></div>
+    <div class="pull-string"><div class="bead-chain"></div><div class="pull-handle"></div></div>
+    <div class="switch-tag">回窗墙</div>
+  </div>
+  <div class="lamp-switch" id="nextSwitch">
+    <div class="lamp-base"></div>
+    <div class="pull-string"><div class="bead-chain"></div><div class="pull-handle"></div></div>
+    <div class="switch-tag">去署名</div>
+  </div>
+</div>
+
+<div class="page-veil" id="pageVeil"></div>
+
+<script src="shared.js"></script>
+<script>
+const papers = [
+  { title:"序贯概率比下的生产决策最优规划模型", year:"2023", img:"screenshots/paper_1_sprt.jpg", pdf:"解决的问题/23国赛数学建模_基于序贯概率比下的生产决策最优规划模型.pdf" },
+  { title:"行车轨迹估计红绿灯周期", year:"2024", img:"screenshots/paper_2_traffic.jpg", pdf:"解决的问题/24华中杯_根据行车轨迹估计红绿灯周期问题.pdf" },
+  { title:"粒子群峰算法·红外干涉光谱外延层厚度测量", year:"2025", img:"screenshots/paper_3_infrared.jpg", pdf:"解决的问题/25数学建模国赛省三_基于粒子群群峰算法的红外干涉光谱的外延层厚度测量.pdf" },
+  { title:"圆柱镜反射变形艺术中的图形变换", year:"2026", img:"screenshots/paper_4_cylmirror.jpg", pdf:"解决的问题/26华中杯_圆柱镜反射变形艺术中的图形变换.pdf" },
+  { title:"QGRU 量子门控循环单元·青少年压力预测", year:"2026", img:"screenshots/paper_5_qgru.jpg", pdf:"解决的问题/26悟空杯_基于量子门控循环单元（QGRU）的青少年学生压力.pdf" },
+  { title:"本源杯 originqcup 量子计算", year:"2026", img:"screenshots/paper_6_originq.jpg", pdf:"解决的问题/26本源杯originqcup1.3.pdf" },
+  { title:"MCM C 题·DWTS 火热背后的数学奥秘", year:"2026", img:"screenshots/paper_7_mcm.jpg", pdf:"解决的问题/mcm_c题_DWTS火热背后的数学奥秘2.pdf" },
+  { title:"CCKS·知识图谱与 LLM 推理", year:"2026", img:"screenshots/paper_8_ccks.jpg", pdf:"解决的问题/ccks/jjnh91.pdf" }
+];
+
+PageNav.arrive();
+PageNav.bindSwitch(document.getElementById("prevSwitch"), "gallery.html");
+PageNav.bindSwitch(document.getElementById("nextSwitch"), "contact.html");
+
+const desk = document.getElementById("deskArea");
+const positions = [
+  { top:"4%",  left:"2%",  rotate:"-6deg" }, { top:"6%",  left:"28%", rotate:"3deg"  },
+  { top:"2%",  left:"54%", rotate:"-2deg" }, { top:"8%",  left:"78%", rotate:"5deg"  },
+  { top:"46%", left:"6%",  rotate:"4deg"  }, { top:"50%", left:"34%", rotate:"-4deg" },
+  { top:"44%", left:"60%", rotate:"6deg"  }, { top:"52%", left:"82%", rotate:"-3deg" }
+];
+
+papers.forEach((p, i) => {
+  const pos = positions[i];
+  const el = document.createElement("div");
+  el.className = "paper";
+  el.style.top = pos.top; el.style.left = pos.left;
+  el.style.setProperty("--rot", pos.rotate);
+  el.innerHTML =
+    "<div class='paper-header'>" + p.title + "</div>" +
+    "<div class='paper-year'>" + p.year + "</div>" +
+    "<img class='paper-img' src='" + p.img + "' alt='" + p.title + "' loading='lazy'>" +
+    "<div class='paper-open-hint'>点击展开全文 →</div>";
+  el.addEventListener("click", () => PdfReader.open(encodeURI(p.pdf), p.title + " · " + p.year));
+  desk.appendChild(el);
+});
+
+gsap.registerPlugin(ScrollTrigger);
+gsap.to(".paper", {
+  opacity: 1, y: 0, duration: 0.8, stagger: 0.13, ease: "power3.out", delay: 0.4,
+  scrollTrigger: { trigger: "#deskPage", start: "top 85%" }
+});
+</script>
+</body>
+</html>

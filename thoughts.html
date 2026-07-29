@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>思想之墙</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+SC:wght@400;600;900&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+/* ============================================================
+   思想之墙 —— 无标题、无装饰编号，让文字与墙面自己说话
+   真实墙面背景 + 逐词遮罩浮现（masked-reveal）
+   ============================================================ */
+body { background: #100c08; }
+#wall {
+  min-height: 100vh;
+  padding: 24vh 7vw 28vh;
+  position: relative;
+  /* 真实的老墙：裂纹、污渍、光影斑驳 */
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(120,80,40,0.10) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 70%, rgba(60,40,20,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 0%, rgba(255,200,120,0.06) 0%, transparent 55%),
+    repeating-linear-gradient(90deg, rgba(255,244,230,0.008) 0px, rgba(255,244,230,0.008) 2px, transparent 2px, transparent 9px),
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 7px),
+    linear-gradient(180deg, #181109 0%, #120c06 55%, #0d0805 100%);
+}
+/* 墙面裂缝细节 */
+#wall::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(75deg, transparent 49.85%, rgba(0,0,0,0.12) 49.95%, rgba(0,0,0,0.12) 50.05%, transparent 50.15%) 10% 0 / 40% 100% no-repeat,
+    linear-gradient(-60deg, transparent 49.9%, rgba(0,0,0,0.08) 50%, transparent 50.1%) 80% 20% / 30% 60% no-repeat;
+}
+.thought {
+  margin-bottom: clamp(2.8rem, 8vh, 5.5rem);
+  line-height: 1.4;
+  max-width: 900px;
+  position: relative;
+  visibility: hidden; /* masked-reveal 接管 */
+}
+.thought.is-split { visibility: visible; }
+.word-mask { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; }
+.word { display: inline-block; transform: translateY(115%); will-change: transform; }
+/* 每句话的独立排版性格（锐利 + 不规矩） */
+.t1  { font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: clamp(1.7rem, 4.6vw, 3.4rem); transform: rotate(-1.3deg); }
+.t2  { font-weight: 300; font-size: clamp(1rem, 2vw, 1.35rem); margin-left: 20vw; color: var(--accent); }
+.t3  { font-family: 'Noto Serif SC', serif; font-weight: 600; font-size: clamp(1.15rem, 2.7vw, 1.9rem); line-height: 2; max-width: 620px; }
+.t4  { font-family: 'Cormorant Garamond', 'ZCOOL XiaoWei', serif; font-style: italic; font-size: clamp(1.4rem, 3.4vw, 2.5rem); text-align: right; margin-left: auto; color: var(--text-warm-gray); }
+.t5  { font-weight: 800; font-size: clamp(1.9rem, 5.4vw, 3.8rem); letter-spacing: 0.1em; transform: rotate(0.9deg); }
+.t6  { font-weight: 400; font-size: clamp(1rem, 2vw, 1.3rem); margin-left: 12vw; max-width: 500px; line-height: 2.1; }
+.t7  { font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: clamp(1.3rem, 3.2vw, 2.3rem); text-align: center; color: var(--accent); letter-spacing: 0.18em; }
+.t8  { font-weight: 300; font-style: italic; font-size: clamp(1.1rem, 2.3vw, 1.6rem); text-align: right; margin-left: auto; }
+.t9  { font-weight: 300; font-size: clamp(0.95rem, 1.8vw, 1.25rem); max-width: 540px; line-height: 2.2; margin-left: 24vw; color: var(--text-warm-gray); }
+.t10 { font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif; font-size: clamp(1.2rem, 2.7vw, 2rem); max-width: 660px; line-height: 2; transform: rotate(-0.7deg); }
+@media (max-width: 768px) { .t2, .t6, .t9 { margin-left: 6vw; } }
+</style>
+</head>
+<body>
+
+<div id="wall">
+  <div class="thought t1" data-split>人类终将毁灭于TA们自己吗？</div>
+  <div class="thought t2" data-split>人工智能是第四次工业革命。</div>
+  <div class="thought t3" data-split>为什么这么多的人只是甘于顺从和模仿，而不是独立和创造？</div>
+  <div class="thought t4" data-split>你喜欢思考吗，你爱这个世界吗？</div>
+  <div class="thought t5" data-split>我讨厌庸俗和庸俗的人。</div>
+  <div class="thought t6" data-split>怎么样我们才能越过偏见，相互尊重，我们能相爱吗？</div>
+  <div class="thought t7" data-split>人性是对动物性的超越。</div>
+  <div class="thought t8" data-split>这个世界上虚伪多还是诚实多？</div>
+  <div class="thought t9" data-split>我能够通过科学理解猫的语言吗，人和其他动物并非不可相互沟通。</div>
+  <div class="thought t10" data-split>我能通过数学概括每一株植物生长的形状吗，从而形成一种对美的抽象吗？</div>
+</div>
+
+<div class="switch-cluster">
+  <div class="lamp-switch" id="prevSwitch">
+    <div class="lamp-base"></div>
+    <div class="pull-string"><div class="bead-chain"></div><div class="pull-handle"></div></div>
+    <div class="switch-tag">回客厅</div>
+  </div>
+  <div class="lamp-switch" id="nextSwitch">
+    <div class="lamp-base"></div>
+    <div class="pull-string"><div class="bead-chain"></div><div class="pull-handle"></div></div>
+    <div class="switch-tag">看作品</div>
+  </div>
+</div>
+
+<div class="page-veil" id="pageVeil"></div>
+
+<script src="shared.js"></script>
+<script>
+PageNav.arrive();
+PageNav.bindSwitch(document.getElementById("prevSwitch"), "index.html");
+PageNav.bindSwitch(document.getElementById("nextSwitch"), "gallery.html");
+
+/* ---------- masked-reveal：中文按词/短语切分，逐段遮罩上升 ---------- */
+function splitThought(el) {
+  const text = el.textContent;
+  el.textContent = "";
+  // 中文按标点+3~4字短语切分，英文按空格
+  const chunks = text.match(/[^，。！？，、；：—\s]{1,4}[，。！？，、；：—]?|\S+\s*/g) || [text];
+  chunks.forEach(c => {
+    const mask = document.createElement("span");
+    mask.className = "word-mask";
+    const word = document.createElement("span");
+    word.className = "word";
+    word.textContent = c;
+    mask.appendChild(word);
+    el.appendChild(mask);
+  });
+  el.classList.add("is-split");
+}
+const thoughts = document.querySelectorAll(".thought[data-split]");
+thoughts.forEach((el, i) => {
+  splitThought(el);
+  gsap.to(el.querySelectorAll(".word"), {
+    y: 0, duration: 0.85, ease: "expo.out",
+    stagger: 0.05, delay: 0.5 + i * 0.5
+  });
+});
+</script>
+</body>
+</html>
